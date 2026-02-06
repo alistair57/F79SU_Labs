@@ -27,7 +27,15 @@ We start by defining and plotting the partial log-likelihood function, as used i
 The following code defines a function `PartialL` with argument `b`. The `{}` braces are necessary because the function spans multiple lines. The function's value is the last line without an assignment.
 
 ```{r}
+PartialL = function(b){
+  x = exp(b)
+  2 * b - log(14 + 15 * x) - log(12 + 14 * x) - log(12 + 13 * x) - 
+    log(12 + 11 * x) - log(10 + 11 * x) - log(8 + 8 * x) - 
+    log(7 + 8 * x) - log(6 + 8 * x)
+}
 
+# Example usage: Calculate the partial log-likelihood at b = 1
+PartialL(1)
 ```
 
 ### Plot the Function
@@ -35,7 +43,8 @@ The following code defines a function `PartialL` with argument `b`. The `{}` bra
 We can plot `PartialL` over a range of `b` values using the following code:
 
 ```{r}
-
+x = seq(-1, 1, length = 1000)
+plot(x, PartialL(x), type = "l", xlab = "beta", ylab = "PartialL")
 ```
 
 ### Refine the Plot for MLE
@@ -43,7 +52,8 @@ We can plot `PartialL` over a range of `b` values using the following code:
 To refine the plot and locate the MLE of `beta`, we can narrow the range of `b` values:
 
 ```{r}
-
+x = seq(-2.0, -1.0, length = 1000)
+plot(x, PartialL(x), type = "l", xlab = "beta", ylab = "PartialL")
 ```
 
 ### Create a Function to Refine the Plot
@@ -51,7 +61,13 @@ To refine the plot and locate the MLE of `beta`, we can narrow the range of `b` 
 We can create a function to refine the plot further. This function takes the left and right bounds as arguments:
 
 ```{r}
+Plot.PartialL = function(Left, Right){
+  x = seq(Left, Right, length = 1000)
+  plot(x, PartialL(x), type = "l", xlab = "beta", ylab = "PartialL")
+}
 
+# Example usage
+Plot.PartialL(-1.4, -1.0)
 ```
 
 ## Example 2: Solving an Equation Graphically
@@ -61,7 +77,10 @@ We can create a function to refine the plot further. This function takes the lef
 The following defines a function `My.function`. Note that `X` is a dummy argument in the definition:
 
 ```{r}
+My.function <- function(X) X + 5 - exp(X) / X
 
+# Example usage: Calculate the value of the function at X = 3
+My.function(3)
 ```
 
 ### Plot the Function
@@ -69,12 +88,32 @@ The following defines a function `My.function`. Note that `X` is a dummy argumen
 We can set up a sequence of `x` values and plot the function:
 
 ```{r}
-
+x <- seq(1, 4, by = 0.001)
+plot(x, My.function(x), type = "l", ylab = "f(x)",
+     main = "f(x) = x + 5 - exp(x)/x, 1 < x < 4")
 ```
 
 ### Solve the Equation Graphically
 
 To solve the equation graphically, we can define another function to add a horizontal line at `y = 0` and refine the range:
+
+```{r}
+Solve.function <- function(Left, Right, By){
+  x <- seq(Left, Right, by = By)
+  plot(x, My.function(x), type = "l", ylab = "f(x)",
+       main = "f(x) = x + 5 - exp(x)/x")
+  abline(h = 0)
+}
+
+# Refine the solution range
+Solve.function(3, 4, 0.001)
+```
+
+```{r}
+Solve.function(3.2, 3.4, 0.001)
+```
+
+Now try refining further yourself!
 
 ```{r}
 
@@ -87,13 +126,23 @@ To solve the equation graphically, we can define another function to add a horiz
 We first define the derivative of the function:
 
 ```{r}
-
+Deriv <- function(x) 1 - exp(x) / x + exp(x) / x^2
 ```
 
 Next, we define the Newton-Raphson algorithm using both `My.function` and `Deriv`:
 
 ```{r}
+Newton <- function(x) x - My.function(x) / Deriv(x)
 
+# Example usage: Perform iterations
+Newton(3)
+
+Newton(3.37674)
+
+Newton(3.31933)
+
+# Perform four iterations in one go
+Newton(Newton(Newton(Newton(3))))
 ```
 
 ### Visualize Convergence
@@ -101,5 +150,6 @@ Next, we define the Newton-Raphson algorithm using both `My.function` and `Deriv
 We can visualize the function with a plot to see how the solution converges:
 
 ```{r}
-
+plot(x, My.function(x), type = "l", ylab = "f(x)",
+     main = "f(x) = x + 5 - exp(x)/x, 1 < x < 4")
 ```

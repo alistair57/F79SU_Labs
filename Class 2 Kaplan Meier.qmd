@@ -1,7 +1,7 @@
 ---
 title: "Class 2: Kaplan-Meier"
 author: "Yubo Rasmussen"
-format: docx
+format: html
 editor: visual
 ---
 
@@ -19,42 +19,49 @@ The data represent an experiment studying the time to discontinuation of a medic
 library(survival)
 
 # Time to discontinuation (in weeks)
+Time <- c(10,13,18,19,23,30,36,38,54,56,59,75,93,97,104,107,107,107)
 
 # Censoring indicator (1 = event occurred, 0 = censored)
+Censor <- c(1,0,0,1,0,1,1,0,0,0,1,1,1,1,0,1,0,0)
 
 # Create a survival object
+Surv(Time, Censor)
 ```
 
 **Questions and Answers**:
 
 1\. **What is the purpose of the `Surv()` function?**
-2\. **Why do we need the censoring indicator?** 
-### Kaplan-Meier Estimate
+
+2\. **Why do we need the censoring indicator?** \### Kaplan-Meier Estimate
 
 ```{r}
 # Fit the Kaplan-Meier survival curve
+KM.Surv <- survfit(Surv(Time, Censor) ~ 1, conf.type = "plain")
 
 # Summary of the survival object
+summary(KM.Surv)
 ```
 
 **Questions and Answers**:
 
-1\. **What does `~ 1` mean in this context?** 
+1\. **What does `~ 1` mean in this context?**
 
-2\. **What does `conf.type = "plain"` mean in this context?** 
+2\. **What does `conf.type = "plain"` mean in this context?**
 
-3\. **What does the Kaplan-Meier estimate represent?** 
+3\. **What does the Kaplan-Meier estimate represent?**
 
 ### Plot the Survival Curve
 
 ```{r}
+plot(KM.Surv, main = "Time to Discontinuation of Medical Device",
+     xlab = "Time (in weeks)", ylab = "Survival Function with 95% CI")
 ```
 
 **Questions and Answers**:
 
-1\. **Why is it important to visualize the Kaplan-Meier curve?** 
+1\. **Why is it important to visualize the Kaplan-Meier curve?**
 
-2\. **What do the confidence intervals indicate on the plot?** 
+2\. **What do the confidence intervals indicate on the plot?**
 
 ------------------------------------------------------------------------
 
@@ -66,41 +73,52 @@ This example uses AML data where: - `1` indicates a relapse occurred. - `0` indi
 
 ```{r}
 # Load the aml dataset
+library(survival)
+aml
+attach(aml)
 
 # Create a survival object
+Surv(time, status)
 ```
 
 **Questions and Answers**:
 
-1\. **What does `status` represent in the AML dataset?** 
+1\. **What does `status` represent in the AML dataset?**
 
-2\. **How does the Kaplan-Meier estimate handle censored patients in this dataset?** 
+2\. **How does the Kaplan-Meier estimate handle censored patients in this dataset?**
 
 ### Kaplan-Meier Estimate by Group
 
 ```{r}
 # Fit the Kaplan-Meier survival curve by group (x)
+fit <- survfit(Surv(time, status) ~ x, data = aml)
 
 # Summary of the survival object
+summary(fit)
 ```
 
 **Questions and Answers**:
 
-1\. **What does stratifying by `x` achieve in this analysis?** 
-2\. **What key differences might you expect between groups in this example?** 
+1\. **What does stratifying by `x` achieve in this analysis?**
+
+2\. **What key differences might you expect between groups in this example?**
 
 ### Plot the Survival Curve
 
 ```{r}
 
+plot(fit, lty = 2:3, main = "Kaplan-Meier Survival Curves for AML",
+     xlab = "Time (in days)", ylab = "Survival Probability")
+
 # Add legend
+legend(100, 0.8, c("Maintained", "Nonmaintained"), lty = 2:3)
 ```
 
 **Questions and Answers**:
 
 1\. **What does the legend add to this plot?**
 
-2\. **Why are different line types used for groups?** 
+2\. **Why are different line types used for groups?**
 
 ------------------------------------------------------------------------
 
@@ -112,34 +130,41 @@ This example involves survival times of rats in a drug trial. Observations inclu
 
 ```{r}
 # Time to event (in days)
+Time <- c(3,4,6,11,11,17,21,24,25,26,30,30,30,30,30)
 
 # Censoring indicator (1 = event occurred, 0 = censored)
+Censor <- c(1,1,0,1,1,0,1,0,0,1,0,0,0,0,0)
 
 # Ensure lengths match
+length(Time) == length(Censor)
 
 # Create a survival object
+Surv(Time, Censor)
 ```
 
 **Questions and Answers**:
 
-1\. **Why is it important to check that the lengths of `Time` and `Censor` match?** 
+1\. **Why is it important to check that the lengths of `Time` and `Censor` match?**
 
-2\. **What assumptions are made about censored data in this example?** 
+2\. **What assumptions are made about censored data in this example?**
 
 ### Kaplan-Meier Estimate
 
 ```{r}
 # Fit the Kaplan-Meier survival curve
+KM.Surv <- survfit(Surv(Time, Censor) ~ 1, conf.type = "plain")
 
 # Summary of the survival object
+summary(KM.Surv)
 ```
 
 ### Plot the Survival Curve
 
 ```{r}
-
+plot(KM.Surv, main = "Rat Drug Trial",
+     xlab = "Time (in days)", ylab = "Survival Function with 95% CI")
 ```
 
 **Questions and Answers**:
 
-1\. **What features of the survival curve might indicate the effect of the drug?** 
+1\. **What features of the survival curve might indicate the effect of the drug?**

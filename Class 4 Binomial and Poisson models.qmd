@@ -1,7 +1,7 @@
 ---
 title: "Class 4 (Solution)"
 author: "Yubo Rasmussen"
-format: docx
+format: html
 editor: visual
 ---
 
@@ -28,7 +28,9 @@ Write a function to plot the log-likelihood function above and call it.
 # Plotting
 ```
 
-What are we looking for in this plot? - The maxima of this curve What do you think is a reasonable assumption for the value of `Qhat`? Assign and store it.
+What are we looking for in this plot?
+
+What do you think is a reasonable assumption for the value of `Qhat`? Assign and store it.
 
 ```{r}
 ```
@@ -45,7 +47,9 @@ Now write a function to plot the Score function and call it.
 # Plot of Score function
 ```
 
-What are we looking for in this plot? - The value of Q when U(Q) is at 0 What do you think is a reasonable assumption for the value of `QHat`? - 0.68
+What are we looking for in this plot?
+
+What do you think is a reasonable assumption for the value of `QHat`?
 
 ```{r}
 ```
@@ -64,7 +68,7 @@ Use an analytical second derivative approach.
 #   And with second derivative
 ```
 
-Do the two estimates of SE aggree? - Yes
+Do the two estimates of SE agree?
 
 ------------------------------------------------------------------------
 
@@ -85,7 +89,9 @@ Write a function to plot the log-likelihood function above and call it.
 
 ```
 
-What are we looking for in this plot? - The maxima of this curve What do you think is a reasonable assumption for the value of `MuHat`? Assign and store it.
+What are we looking for in this plot?
+
+What do you think is a reasonable assumption for the value of `MuHat`? Assign and store it.
 
 ```{r}
 ```
@@ -102,7 +108,9 @@ Write a function to plot the log-likelihood function above and call it.
 # Plot log likelihood for Phi
 ```
 
-What are we looking for in this plot? - The maxima of this curve What do you think is a reasonable assumption for the value of `PhiHat`? Assign and store it.
+What are we looking for in this plot?
+
+What do you think is a reasonable assumption for the value of `PhiHat`? Assign and store it.
 
 ```{r}
 ```
@@ -125,7 +133,9 @@ Now write a function to plot the Score function and call it.
 # Plot of Score function
 ```
 
-What are we looking for in this plot? - The value of Phi when U(Phi) is at 0 What do you think is a reasonable assumption for the value of `PhiHat`? - 0.75
+What are we looking for in this plot?
+
+What do you think is a reasonable assumption for the value of `PhiHat`?
 
 ```{r}
 ```
@@ -144,7 +154,7 @@ Use an analytical second derivative approach.
 #   And with second derivative
 ```
 
-Do the two estimates of SE aggree? - Yes
+Do the two estimates of SE agree?
 
 Repeat the above and write down the Score function and SE for mu, including a plot of the Score function.
 
@@ -168,11 +178,22 @@ Since computing the analytical derivative $f'(x)$ is not always convenient, we u
 
 ```{r}
 # Newton-Raphson iteration using numerical differentiation
+# Arguments: f, a function defining the equation
+#           x0, an estimate of the solution
+#           Delta, h-value for numerical differentiation
+Newton <- function(f, x0, Delta){ 
+  Derivative <- (f(x0+Delta/2) - f(x0-Delta/2))/Delta 
+  x0 - f(x0)/Derivative 
+} 
 ```
 
 ### Example: Finding the Square Root of 2
 
 ```{r}
+Square <- function(x) x^2 - 2 
+x1 <- Newton(Square, 1.5, 0.0001) 
+x2 <- Newton(Square, x1, 0.0001) 
+c(x1, x2, x2^2) 
 ```
 
 ### Generalizing Newton-Raphson with a Loop
@@ -180,16 +201,34 @@ Since computing the analytical derivative $f'(x)$ is not always convenient, we u
 We can now define a function that iteratively applies the Newton-Raphson method until convergence:
 
 ```{r}
+# Additional argument: Tol, tolerance for solution
+#                      Max.iter, maximum number of iterations
+Solve <- function(f, x0, Delta, Tol, Max.Iter){ 
+  TOL <- abs(f(x0)) 
+  Iter <- 0 
+  while((TOL > Tol) && (Iter < Max.Iter)) { 
+    Iter <- Iter + 1 
+    x1 <- Newton(f, x0, Delta) 
+    TOL <- abs(f(x1)) 
+    x0 <- x1 
+  } 
+  x0 
+} 
 ```
 
 ### Finding Roots of a Function
 
 ```{r}
+Root <- Solve(Square, 1.5, 0.0001, 10^(-6), 10) 
+c(Root, Root^2) 
 ```
 
 ### Applying Newton-Raphson to the Score Function of Q
 
 ```{r}
+Score <- function(Q) 3/Q - 2/(1 - Q) + 1/(4 - Q) + 3/(4 - 3*Q) 
+q.hat <- Solve(Score, 0.5, 0.0001, 10^(-6), 10) 
+q.hat 
 ```
 
 ### Alternative Root Finding Using `uniroot()`
@@ -197,18 +236,31 @@ We can now define a function that iteratively applies the Newton-Raphson method 
 The `uniroot()` function in R can also find the root of a function over a specified interval:
 
 ```{r}
+x.lower <- 0.001; x.upper <- 0.999 
+uniroot(Score, c(x.lower, x.upper)) 
 ```
 
 ### Numerical Derivative of the Log-Likelihood Function
 
+This works with a numerical derivative of the log likelihood function:
+
 ```{r}
+Log.L <- function(Q) 3*log(Q) + 2*log(1-Q) - log(4-Q) - log(4-3*Q) 
+Score.Num <- function(x) (Log.L(x + Delta/2) - Log.L(x - Delta/2))/Delta 
+Delta <- 0.0001 
+uniroot(Score.Num, c(x.lower, x.upper)) 
 ```
 
 ### Checking the Score Function at the Estimated Root
 
 ```{r}
+Score(q.hat) 
+```
+
+```{r}
+Score(uniroot(Score.Num, c(x.lower, x.upper))$root) 
 ```
 
 -   How does the Newton-Raphson method compare to `uniroot()`?
--   How does step size ( \Delta ) affect convergence?
+-   How does step size (Delta) affect convergence?
 -   What are the advantages of using Newton-Raphson in maximum likelihood estimation?

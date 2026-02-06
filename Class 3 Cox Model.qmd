@@ -1,7 +1,7 @@
 ---
 title: "Class 3 Cox Model"
 author: "Yubo Rasmussen"
-format: docx
+format: html
 editor: visual
 ---
 
@@ -34,9 +34,9 @@ Surv(Time, Censor)
 
 **Questions and Answers**:
 
-1\. **What does the `Surv()` function do, and why is it essential in survival analysis?** - The `Surv()` function creates a survival object, which encodes the survival times and censoring information. It is essential because it provides the format needed for survival analysis models, like Kaplan-Meier or Cox regression.
+1\. **What does the `Surv()` function do, and why is it essential in survival analysis?**
 
-2\. **Why do we include a censoring indicator, and how does it affect the analysis?** - The censoring indicator specifies whether an event was observed (1) or censored (0). This ensures that censored data is appropriately accounted for, preventing biased results.
+2\. **Why do we include a censoring indicator, and how does it affect the analysis?**
 
 ### Fit the Cox Model
 
@@ -50,11 +50,11 @@ summary(Cox.fit)
 
 **Questions and Answers**:
 
-1\. **What does the coefficient for `Sex` represent in the Cox model?** - The coefficient represents the log of the hazard ratio for the comparison between the two groups (e.g., Male vs. Female).
+1\. **What does the coefficient for `Sex` represent in the Cox model?**
 
-2\. **How would you interpret the hazard ratio derived from the coefficient?** - The hazard ratio indicates how much the hazard of an event changes for one group compared to another. A hazard ratio \>1 suggests higher risk, while \<1 indicates lower risk.
+2\. **How would you interpret the hazard ratio derived from the coefficient?** -
 
-3\. **What does the p-value in the output tell us about the relationship between `Sex` and survival time?** - The p-value tests the null hypothesis that the coefficient for `Sex` is zero. A small p-value (e.g., \<0.05) indicates a statistically significant relationship.
+3\. **What does the p-value in the output tell us about the relationship between `Sex` and survival time?**
 
 ------------------------------------------------------------------------
 
@@ -71,9 +71,9 @@ PartialPL <- function(b){
 
 **Questions and Answers**:
 
-1\. **What does the partial log-likelihood represent in the context of the Cox model?** - It quantifies the fit of the model to the data for a given parameter value, focusing on the relative risks without considering baseline hazards.
+1\. **What does the partial log-likelihood represent in the context of the Cox model?**
 
-2\. **How does the log-likelihood depend on the parameter `b` (beta)?** - The log-likelihood increases as `b` improves the model's fit to the data and peaks at the MLE of `b`.
+2\. **How does the log-likelihood depend on the parameter `b` (beta)?**
 
 ### Plot the Partial Log-Likelihood
 
@@ -95,9 +95,9 @@ Beta.hat <- -1.16
 
 **Questions and Answers**:
 
-1\. **What does the maximum of the log-likelihood plot indicate?** - The maximum indicates the value of `b` that maximizes the likelihood, i.e., the MLE.
+1\. **What does the maximum of the log-likelihood plot indicate?**
 
-2\. **How would narrowing the range of `Beta` values improve the accuracy of locating the maximum?** - It increases resolution around the peak, allowing for a more precise estimate of the MLE.
+2\. **How would narrowing the range of `Beta` values improve the accuracy of locating the maximum?**
 
 ### Define and Plot the Score Function
 
@@ -120,7 +120,7 @@ PlotScore(-1.157, -1.156)
 
 **Questions and Answers**:
 
-1\. **How is the score function related to the log-likelihood function?** - The score function is the derivative of the log-likelihood with respect to `b`.
+1\. **How is the score function related to the log-likelihood function?**
 
 ### Numerical Derivatives and Standard Error
 
@@ -156,9 +156,9 @@ Info
 
 **Questions and Answers**:
 
-1\. **How do numerical derivatives approximate the gradient and curvature of the log-likelihood function?** - By using small changes in `x`, they estimate the slope (gradient) and the rate of change of the slope (curvature).
+1\. **How do numerical derivatives approximate the gradient and curvature of the log-likelihood function?**
 
-2\. **What are the implications of the information matrix for parameter estimation?** - The information matrix quantifies the precision of the estimates; its inverse gives the variance.
+2\. **What are the implications of the information matrix for parameter estimation?**
 
 ### Wald, LRT, and Score Tests
 
@@ -182,8 +182,8 @@ Tests
 
 **Questions and Answers**:
 
-1\. **What is the null hypothesis tested by each of the Wald, LRT, and Score tests?** - The null hypothesis is that `Beta.hat = 0`, meaning no effect of the predictor.
+1\. **What is the null hypothesis tested by each of the Wald, LRT, and Score tests?**
 
-2\. **How are these three tests related, and why might they yield similar or different results?** - They all test the same hypothesis but use different approximations of the likelihood. Differences may arise due to sample size or data distribution.
+2\. **How are these three tests related, and why might they yield similar or different results?** -
 
-3\. **What does the test statistic from each test imply about the significance of `Beta.hat`?** - A large test statistic suggests strong evidence against the null hypothesis, indicating that `Beta.hat` is significantly different from zero.
+3\. **What does the test statistic from each test imply about the significance of `Beta.hat`?**
