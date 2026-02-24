@@ -58,7 +58,7 @@ lines(AGE, Gomp.fit$fit, lwd = 2)
 What are the coefficients of the fitted model?
 
 ```{r}
-
+Gomp.fit$coefficients
 ```
 
 How would you interpret this model and what is $\varepsilon_i$?
@@ -103,6 +103,10 @@ abline(h = 0, lty = 2, col = "red")
 
 **What are your Interpretations of the residuals?**
 
+-   If the residuals are randomly scattered around zero, the model’s assumptions are likely valid, it doesn’t look like the normal assumption is valid here. 
+-   Systematic patterns in the residual plot suggest potential model misspecifications, it seems like there is a quadratic pattern. 
+-   Large residuals may indicate outliers or data issues, which is not an issue here. 
+
 **More advanced topics:**
 
 For those also studying F79MB Statistical Models B, try to calculate the following:
@@ -110,19 +114,32 @@ For those also studying F79MB Statistical Models B, try to calculate the followi
 **Residual deviance:**
 
 ```{r}
-
+sum((Obs - Gomp.fit$fit)^2)
+# Alternatively:
+# Gomp.fit_GLM <- glm(Obs ~ AGE, family = gaussian)
+# R = resid(Gomp.fit_GLM, type = "deviance")
+# sum(R^2)
+# or simply:
+# Gomp.fit_GLM$deviance
 ```
 
 **Null deviance:**
 
 ```{r}
-
+ave_y = mean(Obs)
+sum_of_squares = sum((Obs - ave_y)^2)
+sum_of_squares
+# check: summary(Gomp.fit_GLM)$null
 ```
 
 **AIC:**
 
 ```{r}
-
+n = length(Obs)
+AIC_LM = sum((Obs - Gomp.fit$fit)^2)/Sigma^2 + 2*n*log(Sigma*sqrt(2*pi)) + 6
+AIC_LM
+# Alternatively: summary(Gomp.fit_GLM)$aic
+# Note slight discrepancy
 ```
 
 ## Poisson Model
@@ -152,6 +169,10 @@ summary(Gomp.glm)
 -   The estimated coefficients $\beta_0$ and $\beta_1$ determine the mortality curve.
 
 ### Interpret the Coefficients
+
+-   The **intercept (**$\beta_0$) represents the log mortality rate at the baseline age.
+-   The **slope (**$\beta_1$) determines how mortality increases with age.
+-   A positive slope indicates that mortality increases exponentially over time, consistent with **Gompertz’s Law**.
 
 ------------------------------------------------------------------------
 
@@ -213,12 +234,12 @@ Try to calculate the Pearson and deviance residuals yourself
 
 ```{r}
 # Pearson
-
+(DTH - Gomp.glm$fit)/sqrt(Gomp.glm$fit)
 ```
 
 ```{r}
 # deviance residuals
-
+2*(DTH*(log(DTH)-Gomp.glm$lin)-DTH+Gomp.glm$fit)
 ```
 
 #### Alternative Residual Analysis: Q-Q Plot
@@ -249,19 +270,36 @@ For those also studying F79MB Statistical Models B, try to calculate the followi
 **Residual deviance:**
 
 ```{r}
-
+Dev_Poi <- 2*(DTH*(log(DTH)-Gomp.glm$lin)-DTH+Gomp.glm$fit)
+sum(Dev_Poi)
+# Alternatively:
+# check: Gomp.glm$deviance
 ```
 
 **Null deviance:**
 
 ```{r}
-
+K = sum(DTH)/sum(EXP)
+null_dev_poi <- sum(2*(DTH*(log(DTH)-log(EXP*K))-DTH+EXP*K))
+null_dev_poi
+# Alternatively, fit the null model:
+# null_glm <-glm(DTH ~ offset(log(EXP)), family = poisson)
+# null_dev_poi <- sum(2*(DTH*(log(DTH)-log(null_glm$fit))-DTH+null_glm$fit))
+# check: summary(Gomp.glm)$null
 ```
 
 **AIC:**
 
 ```{r}
-
+log_fact_pois = rep(0,41)
+for (j in 1:41){
+  for (i in 1:DTH[j]){
+    log_fact_pois[j] = log_fact_pois[j]+log(i)
+  }
+}
+AIC_pois <- 4 - 2*sum(DTH*Gomp.glm$lin - Gomp.glm$fit - log_fact_pois)
+AIC_pois
+# Check: summary(Gomp.glm)$aic
 ```
 
 ## 
@@ -335,12 +373,12 @@ Try to calculate the Pearson and deviance residuals yourself:
 
 ```{r}
 # Pearson
-
+(DTH - E.init*Gomp.bin$fit)/sqrt(E.init*Gomp.bin$fit)
 ```
 
 ```{r}
 # deviance residuals
-
+2*(DTH*(Logit(Q.x)-Gomp.bin$lin)+E.init*(log(1-Q.x)-log(1-Gomp.bin$fit)))
 ```
 
 For those also studying F79MB Statistical Models B, try to calculate the following:
@@ -348,19 +386,33 @@ For those also studying F79MB Statistical Models B, try to calculate the followi
 **Residual deviance:**
 
 ```{r}
-
+Dev_bin <- 2*(DTH*(Logit(Q.x)-Gomp.bin$lin)+E.init*(log(1-Q.x)-log(1-Gomp.bin$fit)))
+sum(Dev_bin)
+# Alternatively:
+# check: Gomp.bin$deviance
 ```
 
 **Null deviance:**
 
 ```{r}
-
+qx_full <- sum(DTH)/sum(E.init)
+null_dev_bin <- sum(2*(DTH*(Logit(Q.x)-Logit(qx_full))+E.init*(log(1-Q.x)-log(1-qx_full))))
+null_dev_bin
+# check: summary(Gomp.bin)$null
 ```
 
 **AIC:**
 
 ```{r}
-
+log_prod_bin = rep(0,41)
+for (j in 1:41){
+  for (i in 1:DTH[j]){
+    log_prod_bin[j] = log_prod_bin[j]+log((E.init[j] - i + 1)/i)
+  }
+}
+AIC_bin <- 4 - 2 * sum(DTH*Gomp.bin$lin + E.init*log(1-Gomp.bin$fit)+log_prod_bin)
+AIC_bin
+# Check: summary(Gomp.bin)$aic
 ```
 
 ## 
